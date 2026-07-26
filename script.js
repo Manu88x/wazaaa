@@ -1,31 +1,75 @@
 document.addEventListener("DOMContentLoaded", () => {
     
-    // --- 1. GREETING LOGIC (TEMPORARY: Resets when tab closes) ---
-    const path = window.location.pathname.toLowerCase();
-    const isAllowedPage = path.endsWith("index.html") || path.endsWith("register.html") || path.endsWith("/");
-    
-    if (isAllowedPage) {
-        let savedName = sessionStorage.getItem("abc_university_username");
-        let heading = document.querySelector(".intro");
+    // ==========================================
+    // 1. WELCOME MESSAGE (Home Page Only)
+    // ==========================================
+    // Target an element with id="welcome-text" on your home page index.html
+let savedName = sessionStorage.getItem("abc_university_username");
+let heading = document.querySelector(".intro");
 
-        if (savedName && heading) {
-            heading.textContent = `Welcome to ABC University, ${savedName}!`;
-        } else if (heading) {
-            let userName = prompt("Please enter your name:");
-            if (userName && userName.trim() !== "") {
-                heading.textContent = `Welcome to ABC University, ${userName.trim()}!`;
-                sessionStorage.setItem("abc_university_username", userName.trim());
+if (savedName && heading) {
+    heading.textContent = `Welcome to ABC University, ${savedName}!`;
+} else if (heading) {
+    let userName = prompt("Please enter your name:");
+    if (userName && userName.trim() !== "") {
+        heading.textContent = `Welcome to ABC University, ${userName.trim()}!`;
+        sessionStorage.setItem("abc_university_username", userName.trim());
+    }
+}
+
+
+
+    // ==========================================
+    // 2. FORM VALIDATION
+    // ==========================================
+    // Target your contact or registration form
+    const mainForm = document.querySelector("form");
+
+    if (mainForm) {
+        mainForm.addEventListener("submit", (event) => {
+            let isValid = true;
+            let firstErrorMessage = "";
+
+            // Find all inputs with the "required" attribute
+            const requiredFields = mainForm.querySelectorAll("[required]");
+
+            requiredFields.forEach((field) => {
+                // Clear any old red borders or styling
+                field.style.border = "";
+
+                // Check if field is empty or just whitespace
+                if (!field.value.trim()) {
+                    isValid = false;
+                    field.style.border = "2px solid #cc0000"; // Visual error cue
+                    
+                    if (!firstErrorMessage) {
+                        // Snag the placeholder or name for a cleaner error message
+                        const fieldName = field.placeholder || field.name || "required fields";
+                        firstErrorMessage = `Please fill out the missing field: "${fieldName}"`;
+                    }
+                }
+            });
+
+            // Prevent form dispatch if validation fails
+            if (!isValid) {
+                event.preventDefault();
+                alert(firstErrorMessage);
+            } else {
+                // Feature 3 Bonus: Display a confirmation message after successful validation
+                event.preventDefault(); // Prevents page reload for demo simulation purposes
+                alert("🎉 Success! Your form has been submitted completely and securely.");
+                mainForm.reset();
             }
-        }
+        });
     }
 
-    // --- 2. THEME LOGIC (PERMANENT) ---
+
+    // ==========================================
+    // 3. DYNAMIC CONTENT & PERMANENT THEME
+    // ==========================================
     const themeBtn = document.getElementById("theme-toggle");
-    
-    // Read the permanent theme preference from localStorage on page load
     let isRedMode = localStorage.getItem("abc_university_theme") === "red";
 
-    // Reusable function to apply styles based on the current state
     function applyTheme(redModeActive) {
         const headers = document.querySelectorAll("header");
         const footers = document.querySelectorAll("footer");
@@ -33,8 +77,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const tableHeaders = document.querySelectorAll("th");
         const submitButtons = document.querySelectorAll('input[type="submit"]');
         const flipCardBacks = document.querySelectorAll(".flip-card-back");
-        
-        // Target text wrappers to manage contrast
         const headings = document.querySelectorAll("h1, h2, h3, h4, h5, h6");
         const links = document.querySelectorAll("a");
         const tableCells = document.querySelectorAll("td");
@@ -52,21 +94,16 @@ document.addEventListener("DOMContentLoaded", () => {
             navs.forEach(el => el.style.backgroundColor = "#cc0000");
             submitButtons.forEach(el => el.style.backgroundColor = "#cc0000");
 
-            // Page text contrast defaults
             headings.forEach(el => el.style.color = "#ffcc00");
             links.forEach(el => el.style.color = "#ffcc00");
-            
-            // FIX: Keep text dark charcoal inside the white table blocks
             tableCells.forEach(el => el.style.color = "#222222");
 
-            // FIX: Keep paragraph and list text dark charcoal inside the white content boxes
             paragraphsAndLists.forEach(el => {
                 if (el.closest("main") || el.closest("section") || el.closest(".contact-container")) {
                     el.style.color = "#222222";
                 }
             });
             
-            // FIX: Override headings inside the white cards so they stay dark red instead of turning white
             document.querySelectorAll("main h1, main h2, main h3, section h1, section h2, section h3").forEach(el => {
                 el.style.color = "#800000";
             });
@@ -87,7 +124,6 @@ document.addEventListener("DOMContentLoaded", () => {
             navs.forEach(el => el.style.backgroundColor = "#00509e");
             submitButtons.forEach(el => el.style.backgroundColor = "#00509e");
 
-            // Revert all customized text color overrides back to original CSS values
             headings.forEach(el => el.style.color = "");
             links.forEach(el => el.style.color = "");
             tableCells.forEach(el => el.style.color = "");
@@ -103,22 +139,41 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    // Initialize Theme
     if (themeBtn) {
-        // Initial setup for the button look
         themeBtn.style.color = "white";
         themeBtn.style.border = "2px solid white";
-
-        // Instantly run the theme on load so it reflects your saved choice right away
         applyTheme(isRedMode);
 
-        // Click listener to toggle the states
         themeBtn.addEventListener("click", () => {
             isRedMode = !isRedMode;
             localStorage.setItem("abc_university_theme", isRedMode ? "red" : "blue");
             applyTheme(isRedMode);
         });
     }
+
+    // ------------------------------------------
+    // Dynamic Content Feature: Show/Hide Read More
+    // ------------------------------------------
+    // Target any button with class="read-more-btn" and elements with class="extra-content"
+    const readMoreButtons = document.querySelectorAll(".read-more-btn");
+
+    readMoreButtons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+            // Find the panel/paragraph structurally right next to or inside the card component
+            const extraContent = btn.parentElement.querySelector(".extra-content");
+            
+            if (extraContent) {
+                if (extraContent.style.display === "none" || extraContent.style.display === "") {
+                    extraContent.style.display = "block";
+                    btn.textContent = "Show Less ▲";
+                } else {
+                    extraContent.style.display = "none";
+                    btn.textContent = "Read More ▼";
+                }
+            }
+        });
+    });
+
 });
-
-
 
