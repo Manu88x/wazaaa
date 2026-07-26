@@ -1,28 +1,39 @@
 document.addEventListener("DOMContentLoaded", () => {
     
-    // ==========================================
-    // 1. WELCOME MESSAGE (Home Page Only)
-    // ==========================================
-    // Target an element with id="welcome-text" on your home page index.html
-let savedName = sessionStorage.getItem("abc_university_username");
-let heading = document.querySelector(".intro");
 
-if (savedName && heading) {
-    heading.textContent = `Welcome to ABC University, ${savedName}!`;
-} else if (heading) {
+    // 1. WELCOME MESSAGE 
+  
+
+const heading = document.getElementById("intro");
+const storageKey = "abc_university_username";
+
+function updateHeading(name) {
+    if (heading) {
+        heading.textContent = `Welcome to ABC University, ${name}!`;
+    }
+}
+
+let savedName = sessionStorage.getItem(storageKey);
+
+if (savedName) {
+    updateHeading(savedName);
+} else {
     let userName = prompt("Please enter your name:");
     if (userName && userName.trim() !== "") {
-        heading.textContent = `Welcome to ABC University, ${userName.trim()}!`;
-        sessionStorage.setItem("abc_university_username", userName.trim());
+        let cleanName = userName.trim();
+        updateHeading(cleanName);
+        sessionStorage.setItem(storageKey, cleanName);
     }
 }
 
 
 
-    // ==========================================
+
+
+ 
     // 2. FORM VALIDATION
-    // ==========================================
-    // Target your contact or registration form
+  
+
     const mainForm = document.querySelector("form");
 
     if (mainForm) {
@@ -64,9 +75,8 @@ if (savedName && heading) {
     }
 
 
-    // ==========================================
     // 3. DYNAMIC CONTENT & PERMANENT THEME
-    // ==========================================
+   
     const themeBtn = document.getElementById("theme-toggle");
     let isRedMode = localStorage.getItem("abc_university_theme") === "red";
 
