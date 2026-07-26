@@ -1,22 +1,19 @@
 document.addEventListener("DOMContentLoaded", () => {
     
     // --- 1. GREETING LOGIC (TEMPORARY: Resets when tab closes) ---
-    const allowedPages = ["/", "/index.html", "/register.html"];
+    const path = window.location.pathname.toLowerCase();
+    const isAllowedPage = path.endsWith("index.html") || path.endsWith("register.html") || path.endsWith("/");
     
-    if (allowedPages.includes(window.location.pathname)) {
-        // Uses sessionStorage so the prompt appears on every new visit/tab open
+    if (isAllowedPage) {
         let savedName = sessionStorage.getItem("abc_university_username");
         let heading = document.querySelector(".intro");
 
-        if (savedName) {
-            if (heading) {
-                heading.textContent = `Welcome to ABC University, ${savedName}!`;
-            }
-        } else {
+        if (savedName && heading) {
+            heading.textContent = `Welcome to ABC University, ${savedName}!`;
+        } else if (heading) {
             let userName = prompt("Please enter your name:");
-            
-            if (heading && userName && userName.trim() !== "") {
-                heading.textContent = `Welcome to ABC University, ${userName}!`;
+            if (userName && userName.trim() !== "") {
+                heading.textContent = `Welcome to ABC University, ${userName.trim()}!`;
                 sessionStorage.setItem("abc_university_username", userName.trim());
             }
         }
